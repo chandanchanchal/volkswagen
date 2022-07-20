@@ -18,3 +18,5 @@ resource "aws_instance" "prod" {
    instance_type = "t2.large"
    count = var.istest == false ? 1 : 0
 }
+
+## Add one terraform.tfvars file and add following istest = false 
