@@ -1,0 +1,44 @@
+- hosts: webserver
+  become: yes
+  vars:
+    doc_root: /var/www/html
+    port_number: 8080
+  tasks:
+    - name: "Installing httpd"
+      package:
+         name: "httpd"
+         state: present
+
+    - name: "Creating Document root"
+      file:
+        state: directory
+        dest: "{{ doc_root }}"
+
+    - name: "Configuration File"
+      template:
+        src: "./webserver.j2"
+        dest: "/etc/httpd/conf.d/new_conf.conf"
+      notify: "server restart"
+
+    - name: "Copy Webpages"
+      copy:
+        content: "<h1> WebPage </h1>"
+        dest: "{{ doc_root }}/index.html"
+
+    - name: "web server start"
+      service:
+        name: "httpd"
+        state: started
+        enabled: yes
+
+    # - name: "Adding Firewall rule port for {{ port_number }}"
+    #   firewalld:
+    #     port: "{{ port_number }}/tcp"
+    #     permanent: yes
+    #     state: enabled
+    #     immediate: yes
+  handlers:
+      - name: "server restart"
+        service:
+            name: "httpd"
+            state: restarted
